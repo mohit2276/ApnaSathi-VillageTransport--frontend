@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Card from "../components/Card";
 import videoBg from "../assets/tractor.mp4";
 import tractor from "../assets/tractor.jpg";
@@ -10,8 +10,40 @@ import p2 from "../assets/p2.jpg";
 import tr1 from "../assets/tr1.png";
 import tele from "../assets/tele.jpg";
 import { Phone } from "lucide-react";
+import { sendContactForm } from "../services/contactService"; // ✅ using service
 
 const Home = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    place: "",
+    contactNumber: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState("");
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setStatus("Sending...");
+
+    try {
+  const msg = await sendContactForm(formData);
+  setStatus("✅ " + msg); // ✅ plain text works
+  setFormData({ name: "", place: "", contactNumber: "", message: "" });
+  setTimeout(() => setStatus(""), 20000);
+} catch (error) {
+  setStatus("❌ Failed: " + error.message);
+}
+
+  };
+
   return (
     <div className="pt-16 pb-16">
       {/* Hero Section: Video Background */}
@@ -101,38 +133,38 @@ const Home = () => {
 
       {/* Motive Section */}
       <div className="max-w-7xl mx-auto px-6 text-lg text-gray-800 leading-relaxed mt-6">
-  <h2 className="text-3xl font-bold text-center mb-6">Our Motive</h2>
-  <p className="mb-4">
-    Our mission is to empower rural communities by providing easy access to 
-    modern farming equipment and transport facilities. Many farmers struggle 
-    with limited resources and high costs, which makes it difficult to adopt 
-    advanced technology. We aim to bridge this gap by offering affordable 
-    rental services for tractors, harvesters, and other essential machinery.
-  </p>
-  <p className="mb-4">
-    Along with farming equipment, we also provide reliable village transport 
-    and supply chain services. Whether it’s delivering goods, supporting 
-    seasonal harvesting, or ensuring the smooth transport of produce, our 
-    services are built to meet the daily needs of local communities. 
-    This allows farmers and small businesses to save time, reduce costs, 
-    and focus more on productivity.
-  </p>
-  <p className="mb-4">
-    What makes us unique is our dedication to building trust with our 
-    customers. We don’t just provide machines — we provide guidance, 
-    assistance, and complete support to ensure that every farmer and 
-    villager can maximize the benefits of our services. By making modern 
-    tools accessible, we are contributing to the growth and development 
-    of rural economies.
-  </p>
-  <p>
-    Through our platform, we aim to create a sustainable ecosystem where 
-    technology, farming, and transport come together to improve the quality 
-    of life for people in villages. Together, we can bring progress to every 
-    corner of our rural communities.
-  </p>
-</div>
-
+        <h2 className="text-3xl font-bold text-center mb-6">Our Motive</h2>
+        <p className="mb-4">
+          Our mission is to empower rural communities by providing easy access
+          to modern farming equipment and transport facilities. Many farmers
+          struggle with limited resources and high costs, which makes it
+          difficult to adopt advanced technology. We aim to bridge this gap by
+          offering affordable rental services for tractors, harvesters, and
+          other essential machinery.
+        </p>
+        <p className="mb-4">
+          Along with farming equipment, we also provide reliable village
+          transport and supply chain services. Whether it’s delivering goods,
+          supporting seasonal harvesting, or ensuring the smooth transport of
+          produce, our services are built to meet the daily needs of local
+          communities. This allows farmers and small businesses to save time,
+          reduce costs, and focus more on productivity.
+        </p>
+        <p className="mb-4">
+          What makes us unique is our dedication to building trust with our
+          customers. We don’t just provide machines — we provide guidance,
+          assistance, and complete support to ensure that every farmer and
+          villager can maximize the benefits of our services. By making modern
+          tools accessible, we are contributing to the growth and development of
+          rural economies.
+        </p>
+        <p>
+          Through our platform, we aim to create a sustainable ecosystem where
+          technology, farming, and transport come together to improve the
+          quality of life for people in villages. Together, we can bring
+          progress to every corner of our rural communities.
+        </p>
+      </div>
 
       {/* Contact Form Section with Image */}
       <div className="max-w-8xl mx-auto px-6 mt-12 flex flex-col md:flex-row items-center gap-8">
@@ -147,31 +179,54 @@ const Home = () => {
 
         {/* Right Form */}
         <div className="md:w-1/2">
-        <div className="flex items-center justify-center mb-8">
-              <span className="text-3xl mr-3">📞</span>
-              <h1 className="text-3xl font-bold text-gray-800">Contact Us</h1>
-                    </div>
+          <div className="flex items-center justify-center mb-8">
+            <span className="text-3xl mr-3">📞</span>
+            <h1 className="text-3xl font-bold text-gray-800">Contact Us</h1>
+          </div>
 
-          <form className="bg-white shadow-lg rounded-lg p-8 w-full space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white shadow-lg rounded-lg p-8 w-full space-y-4"
+          >
             <input
               type="text"
+              name="name"
               placeholder="Your Name"
+              value={formData.name}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded p-2"
+              required
             />
             <input
               type="text"
+              name="place"
               placeholder="Place"
+              value={formData.place}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded p-2"
+              required
             />
             <input
               type="text"
+              name="contactNumber"
               placeholder="Contact Number"
+              value={formData.contactNumber}
+              onChange={(e) => {
+      // ✅ Allow only digits
+              const value = e.target.value.replace(/\D/g, ""); 
+               setFormData({ ...formData, contactNumber: value });
+                }}
               className="w-full border border-gray-300 rounded p-2"
+              required
             />
             <textarea
+              name="message"
               placeholder="Your Question or Query"
               rows="4"
+              value={formData.message}
+              onChange={handleChange}
               className="w-full border border-gray-300 rounded p-2"
+              required
             ></textarea>
             <button
               type="submit"
@@ -179,6 +234,11 @@ const Home = () => {
             >
               Request
             </button>
+            {status && (
+              <p className="text-center text-sm mt-2">
+                {status}
+              </p>
+            )}
           </form>
         </div>
       </div>
